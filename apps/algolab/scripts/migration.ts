@@ -1,9 +1,9 @@
 import { Client } from 'pg';
 import * as fs from 'fs';
 
-export default async function runMigrations() {
+export default async function runMigrations(fileName: string) {
 
-    const migrationSQL = fs.readFileSync('./sql/migration.sql', 'utf8');
+    const migrationSQL = fs.readFileSync('./apps/algolab/src/sql/${fileName}.sql', 'utf8');
 
     const connectionString = 'postgresql://pavithra:pavithra@localhost:5432/mydatabase';
     const client = new Client({ connectionString });
