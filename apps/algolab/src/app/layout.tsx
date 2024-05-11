@@ -18,7 +18,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en" id="__next">
       <body>
         <SessionProvider>
+          <DarkModeProvider>
+            <ThemeProvider>
+              <CatppuccinProvider>
                     {children}
+              </CatppuccinProvider>
+            </ThemeProvider>
+          </DarkModeProvider>
         </SessionProvider>
       </body>
     </html>
