@@ -9,11 +9,13 @@ export async function GET(): Promise<Response> {
         const sql = fs.readFileSync('./src/sql/user.sql', 'utf-8');
         const queries = sql.split(';').map(query => query.trim()).filter(query => query);
         let responseData = [];
+       
 
         for (const query of queries) {
             const result = await sqlClient.unsafe(query); 
             responseData.push(result);
         }
+        console.log(responseData);
 
         return new Response(JSON.stringify(responseData), { status: 200 });
     } catch (error: any) {

@@ -20,11 +20,6 @@ WHERE
             ELSE p.programming_languages = :programmingLanguage 
         END
     AND 
-        CASE 
-            WHEN LOWER(:postType) = 'all' THEN true 
-            ELSE p.post_type = :postType 
-        END
-    AND 
         (:followedOnly = false OR uf.user_id = :currentUserId OR cm.user_id = :currentUserId)
     AND 
         (p.user_id != :currentUserId)

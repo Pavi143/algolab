@@ -23,6 +23,7 @@ import FormGroup from "@mui/material/FormGroup";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import TextField from "@mui/material/TextField";
 import { SyntheticEvent } from 'react';
+import { POST, GET } from '@/actions/action';
 
 
 interface Post {
@@ -32,44 +33,94 @@ interface Post {
   creation_date: string;
   tags: string[];
 }
-
+interface GetParams {
+  initialDisplay?: boolean;
+  category?: string;
+  answered?: boolean;
+  programmingLanguage?: string;
+  followedOnly?: boolean;
+  currentUserId?: number;
+  
+}
 export default function Home() {
-  // const [value, setValue] = useState(0);
-  // const [currentUserId, setCurrentUserId] = useState(1);
+  const [value, setValue] = useState(0);
   const [postData, setPostData] = useState<Post[]>([]);
-  const [programmingLangugage, setProgrammingLanguage] = useState("all");
-  const [topic, setTopic] = useState("all");
-  const [name, setName] = useState("");
-  const [initialDisplay, setInitialDisplay] = useState("all");
-  const [answered, setAnswered] = useState('all');
+  const [programmingLanguage, setProgrammingLanguage] = useState('All');
+  const [topic, setTopic] = useState('All');
+  const [name, setName] = useState('');
+  const [initialDisplay, setInitialDisplay] = useState(true);
+  const [currentUserId, setCurrentUserId] = useState(1);
+  const [answered, setAnswered] = useState('');
+  
+  useEffect(()=>{
+    console.log("PL:",programmingLanguage)
 
-  
-  
+  },[programmingLanguage])
 
   const handleChangeSelectLanguage = (event: SelectChangeEvent) => {
     setProgrammingLanguage(event.target.value as string);
   };
-  const handleChangeSelect = (event: React.SyntheticEvent<Element, Event>, value: any) => {
-    const target = event.currentTarget as HTMLSelectElement;
-    setInitialDisplay(target.value);
+  const handleChangeSelect = (event: React.SyntheticEvent<Element, Event>, value: boolean) => {
+    setInitialDisplay(value);
   };
   const handleChangeSelectTopic = (event: SelectChangeEvent) => {
     setTopic(event.target.value as string);
   };
 
-  
+  const handleChange = (event: React.SyntheticEvent, newValue: number) => {
+    setValue(newValue);
+  };
+  // useEffect(() => {
+  //   const fetchData = async () => {
+  //     const response = await fetch("/api");
+  //     const data = await response.json();
+  //     setPostData(data[1]);
+  //     console.log(data[1]);
+  //     console.log("HI");
+  //     console.log(postData);
+  //   };
+
+  //   fetchData();
+  // }, []);
 
   useEffect(() => {
     const fetchData = async () => {
-      const response = await fetch("/api");
-      const data = await response.json();
-      setPostData(data[1]);
-      console.log(data[1]);
-      console.log(postData);
+      const params : GetParams = {
+        initialDisplay,
+        category: topic, 
+        answered: answered == 'true', 
+        programmingLanguage: programmingLanguage, 
+        followedOnly: initialDisplay, 
+        currentUserId: 1 
+    };
+      const response = await GET(params)
+      const data: Post[] =[];
+      response.forEach(r=>{
+        r.forEach(i=>{
+          console.log(i);
+          const temp: Post={
+            id: i.id,
+            title: i.title,
+            content: i.content,
+            creation_date:new Date(i.creation_date).toString(),
+            tags: []
+          }
+          data.push(temp)
+        })
+        
+        
+      })
+      setPostData(data)
+     
     };
 
     fetchData();
   }, []);
+
+  
+  console.log(programmingLanguage)
+  console.log(topic);
+
 
   return (
     <div className="flex flex-col gap-4  w-full">
@@ -93,8 +144,8 @@ export default function Home() {
             <div className="flex justify-evenly">
               <Box sx={{ width: "100%", bgcolor: "background.paper" }}>
                 <Tabs value={initialDisplay} onChange={handleChangeSelect} variant="fullWidth">
-                  <Tab label="All" value="All" icon={<MarkUnreadChatAltIcon />} />
-                  <Tab label="Following"value="Following" icon={<FavoriteIcon />} />
+                  <Tab label="All" value={true} icon={<MarkUnreadChatAltIcon />} />
+                  <Tab label="Following"value={false} icon={<FavoriteIcon />} />
                  
                 </Tabs>
               </Box>
@@ -122,13 +173,13 @@ export default function Home() {
               <FormControl fullWidth>
                 <InputLabel id="demo-simple-select-label">Programming Language</InputLabel>
                 <Select
-                  
-                  id="selectProgramingLanguage"
-                  value={programmingLangugage}
+                  labelId="demo-simple-select-label"
+                  id="demo-simple-select"
+                  value={programmingLanguage}
                   label="Programming Language"
                   onChange={handleChangeSelectLanguage}
                 >
-                  <MenuItem value="All">All</MenuItem>
+                   <MenuItem value="All">All</MenuItem>
                   <MenuItem value="C">C</MenuItem>
                   <MenuItem value="C++">C++</MenuItem>
                   <MenuItem value="JavaScript">JavaScript</MenuItem>
@@ -136,10 +187,10 @@ export default function Home() {
                 </Select>
               </FormControl>
               <FormControl fullWidth>
-                <InputLabel id="selectTopic">Topic</InputLabel>
+                <InputLabel id="demo-simple-select-label">Topic</InputLabel>
                 <Select
-                  
-                  id="selectTopic"
+                  labelId="demo-simple-select-label"
+                  id="demo-simple-select"
                   value={topic}
                   label="Topic"
                   onChange={handleChangeSelectTopic}
@@ -147,13 +198,13 @@ export default function Home() {
                   <MenuItem value="All">All</MenuItem>
                   <MenuItem value="Web development">Web development</MenuItem>
                   <MenuItem value="Database">Database</MenuItem>
-                  <MenuItem value="Operating System">Operating System</MenuItem>
+                  <MenuItem value="Operating system">Operating System</MenuItem>
                   <MenuItem value="Data science">Data Science</MenuItem>
                 </Select>
               </FormControl>
               <FormGroup>
                 <FormControlLabel
-                  control={<Switch defaultChecked />}
+                  control={<Switch defaultChecked onChange={(event: React.ChangeEvent<HTMLInputElement>) => setAnswered(event.target.checked.toString())} />}
                   label="Answered"
                 />
               </FormGroup>
